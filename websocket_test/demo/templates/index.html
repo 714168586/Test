@@ -1,0 +1,55 @@
+<!DOCTYPE html >
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>游戏运维平台</title>
+    <script src="/static/jquery.min.js"></script>
+    <script type="text/javascript">//<![CDATA[
+    $(function () {
+        $('#backup_all').click(function () {
+            var socket = new WebSocket("ws://" + window.location.host );
+            socket.onopen = function () {
+                console.log('WebSocket open');//成功连接上Websocket
+                socket.send($('#backup_all').val());//发送数据到服务端
+            };
+            socket.onmessage = function (e) {
+                console.log('message: ' + e.data);//打印服务端返回的数据
+                $('#messagecontainer').prepend('<p><pre>' + e.data + '</pre></p>');
+                $('#messagecontainer').prepend('<hr />');
+            };
+        });
+    });
+
+     $(function () {
+        $('#yunxing').click(function () {
+            var socket = new WebSocket("ws://" + window.location.host );
+            socket.onopen = function () {
+                console.log('WebSocket open');//成功连接上Websocket
+                socket.send($('#yunxing').val());//发送数据到服务端
+            };
+            socket.onmessage = function (e) {
+                console.log('message: ' + e.data);//打印服务端返回的数据
+                $('#messagecontainer2').prepend('<p><pre>' + e.data + '</pre></p>');
+                $('#messagecontainer2').prepend('<hr />');
+            };
+        });
+    });
+    </script>
+</head>
+<body>
+<br>
+<button style="margin: 20px;height: 40px;background-color: #00ff00;" type="button" id="backup_all" value="backup_all">
+    执行全平台备份脚本
+</button>
+<h3 style="margin: 20px;">脚本执行结果:</h3>
+<div id="messagecontainer" style="margin: 20px;">
+</div>
+
+
+  <div class="form-group">
+      <input type="text" id="username" class="form-control" name="comm"  placeholder="请输入命令"/>
+      <button type="submit" class="btn btn-lg btn-primary btn-block" id="yunxing" value="yunxing">运行</button> </div>
+<div id="messagecontainer2" style="margin: 20px;">
+<hr/>
+</body>
+</html>
