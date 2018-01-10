@@ -1,0 +1,27 @@
+testlink需要lamp或者lnmp的环境
+
+准备环境Lamp
+    下载testlink版本  这里testlink对于php的版本有要求  最新版的需要php5.6以上  其他的没有做测试 
+    这里用的是 testlink-1.9.9.tar.gz
+
+
+1.解压 
+    cd /var/www/html;
+    tar xf testlink-1.9.9.tar.gz 
+    mv testlink-1.9.9 testlink
+    chown -R apache. testlink
+2.配置testlink
+    登陆http:/ip/testlink/
+    错误1：
+    Checking max.execution time(Parameter max_execution_time) 30 seonds - We suggest 120 seconds in order to manage hundred of test cases(edit php.ini)
+    解决方法：打开php.ini，修改max_execution_time的值为120(max_execution_time = 120)即可
+    错误2：
+    Checking if /var/testlink/logs/ directory exists。
+    解决方法：在/var/www/html/testlink目录下，打开config.inc.php，找到
+    $tlCfg->log_path = '/var/testlink/logs/'; /* unix example */  根据实际路径去修改
+    其他的同理修改下正确目录 
+3.按照提示点击安装过就好  这一步主要是配置数据库  最后安装成功 
+     默认登陆 admin  admin
+
+    http://testlink.51tuodao.com/testlink/login.php
+    admin admin

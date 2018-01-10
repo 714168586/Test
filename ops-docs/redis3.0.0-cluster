@@ -1,0 +1,50 @@
+redis3.0.0集群安装部署
+
+（要让集群正常工作至少需要3个主节点，在这里我们要创建6个redis节点，其中三个为主节点，三个为从节点，对应的redis节点的ip和端口对应关系如下）
+
+127.0.0.1:7000
+127.0.0.1:7001
+
+127.0.0.1:7002
+
+127.0.0.1:7003
+
+127.0.0.1:7004
+
+127.0.0.1:7005
+
+第一步：下载redis
+下载地址：https://github.com/antirez/redis/archive/3.0.0-rc2.tar.gz
+wget https://github.com/antirez/redis/archive/3.0.0-rc2.tar.gz
+
+tar xzvf 3.0.0-rc2.tar.gz
+cd  /root/redis-3.0.0-rc2
+make  
+make install
+
+
+第二步：
+创建集群需要的目录,并修改配置文件
+mkdir -p /usr/local/cluster
+cd /usr/local/cluster
+
+#!/bin/bash
+if [ $# == 0 ];then
+echo "Usage: sh $0 ip address. example: sh $0 127.0.0.1"
+exit
+fi
+IP=$1
+for i in `seq 0 5`
+do 
+mkdir 700$i
+cp /root/redis-3.0.0-rc2/redis.conf 700$i
+sed -i "s/^# bind 127.0.0.1/bind $IP/" 700$i/redis.conf
+sed -i "s/port 6379/port 700$i/g" 700$i/redis.conf
+sed -i "s/nodes-6379.conf/nodes-700$i.conf/g" 700$i/redis.conf
+
+sed -i "s/daemonize no/daemonize yes/g" 700$i/redis.conf
+sed -i "s/^# \(cluster-enabled yes\)/\1/" 700$i/redis.conf
+#sed -i "s/^# \(cluster-config-file\) nodes-6379.conf/\1 nodes-700$i.conf/" 700$i/redis.conf
+sed -i "/cluster-config-file/ s/^#//;/cluster-config-file/ s/6379/700$i/" 700$i/redis.conf
+sed -i "s/^# \(cluster-node-timeout\) 15000/\1 5000/" 700$i/redis.conf
+done

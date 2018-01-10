@@ -1,0 +1,61 @@
+使用 RDS for MySQL 配置到自建数据库的主从复制
+
+操作步骤
+一  配置主实例
+
+	1. 登录 RDS 控制台，选择目标实例（主库）。
+
+	2. 在目标实例，账号管理页面，创建主从同步账号 （qianyi）
+
+	3. 将从库的 IP 地址加入主库的 IP 白名单中，如果从库是部署在同一地域的 ECS 上，仅需配置该 ECS 的内网地址即可
+
+
+
+二 配置从实例
+1.安装 MySQL 从实例。
+MySQL 安装包和安装方法请参见 MySQL 官方安装文档。
+
+
+1. 停止从实例 mysql 服务。
+# service mysql stop
+
+2. 修改从实例 mysql 配置文件。
+   1.打开从实例 MySQL 配置文件。 
+   # vim /etc/my.cnf  
+
+   2.配置从实例的 server-id和要同步的数据库。
+
+    server-id               =  123456789              //服务 ID，主从实例 server-id 需不同。
+    log_bin                 =  /var/log/mysql/mysql-bin.log
+    expire_logs_days        =  10max_binlog_size         =  100M
+    replicate-do-db         =  exampledb                //需要同步的数据库
+    replicate-ignore-db     =  mysql                  //不需要同步的数据库
+    replicate-ignore-db     =  information_schema     //不需要同步的数据库
+    replicate-ignore-db     =  performance_schema     //不需要同步的数据库
+    gtid_mode=on
+    enforce_gtid_consistency=on
+    binlog_format=row                             //设置 binlog 为 row
+    log-slave-updates=1
+
+
+3.将主实例数据全量同步到从实例。
+    1. 本例以 mysqldump 工具为例。（从库上执行）
+    # mysqldump -uname -hmasterhost.mysql.rds.aliyuncs.com -p --databases exampledb > exampledb.sql# mysql -uroot -p123 -e 'create database weibo;'
+    # mysql -uroot -p123 -e 'create database weibo;'
+    # mysql -uname -p < exampledb.sql
+    
+    2. 登录数据库，设置同步选项。
+    mysql>change master to master_host = 'masterhost.mysql.rds.aliyuncs.com', master_port = 3306, master_user = 'qianyi', master_password='masterpassword', master_auto_position = 1;
+
+	3. 启动从实例。
+    mysql>slave start;
+
+
+	4. 检查同步结果。
+    mysql>show slave statue\G
+
+    查看系统返回信息中 Slave_IO_Running 和 Slave_SQL_Running 的状态是否为 Yes，则表示成功
+
+
+
+  参考链接：https://yq.aliyun.com/articles/66087
